@@ -17,11 +17,14 @@
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
     .card { background: rgba(0,0,0,0.95); border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     .card h2 { margin-top: 0; color: #1db954; }
-    .dates label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer; }
-    .dates label span { flex: 1; padding-left: 8px; }
-    .dates label button { background: #c0392b; border: none; border-radius: 4px; padding: 2px 6px; color: white; cursor: pointer; margin-left: 8px; }
+    .dates div { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 10px; }
+    .dates div label { cursor: pointer; display: flex; align-items: center; }
+    .dates div label span { padding-left: 8px; }
     button { background: #1db954; border: none; padding: 14px 24px; border-radius: 999px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
     button:hover { background: #17a64a; }
+    #votes li { margin-bottom: 8px; }
+    #votes li button { margin-left: 8px; background: #c0392b; color: white; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; }
+
     footer { text-align: center; padding: 20px; opacity: 0.9; font-size: 0.9rem; position: relative; z-index: 1; background: rgba(0,0,0,0.95); border-radius: 16px; }
 
     @media screen and (max-width: 600px) {
@@ -56,9 +59,15 @@
       <label>Neuen Termin hinzufügen:<br><input type="text" id="newDate" placeholder="z.B. 31. Januar"></label>
       <button type="button" id="addDate">Hinzufügen</button>
       <div class="dates" id="datesContainer">
-        <label><input type="checkbox" name="dates" value="10. Januar"><span>10. Januar</span><button type="button" class="deleteDate">✖</button></label>
-        <label><input type="checkbox" name="dates" value="17. Januar"><span>17. Januar</span><button type="button" class="deleteDate">✖</button></label>
-        <label><input type="checkbox" name="dates" value="24. Januar"><span>24. Januar</span><button type="button" class="deleteDate">✖</button></label>
+        <div>
+          <label><input type="checkbox" name="dates" value="10. Januar"><span>10. Januar</span></label>
+        </div>
+        <div>
+          <label><input type="checkbox" name="dates" value="17. Januar"><span>17. Januar</span></label>
+        </div>
+        <div>
+          <label><input type="checkbox" name="dates" value="24. Januar"><span>24. Januar</span></label>
+        </div>
       </div>
       <button type="submit">Abstimmen</button>
     </form>
@@ -91,32 +100,26 @@
   const newDateInput = document.getElementById('newDate');
   const datesContainer = document.getElementById('datesContainer');
 
-  function createDateLabel(dateValue) {
+  function createDateLabel(dateValue){
+    const container = document.createElement('div');
     const label = document.createElement('label');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.name = 'dates';
     checkbox.value = dateValue;
-
     const span = document.createElement('span');
     span.textContent = dateValue;
-
-    const delBtn = document.createElement('button');
-    delBtn.type = 'button';
-    delBtn.className = 'deleteDate';
-    delBtn.textContent = '✖';
-    delBtn.addEventListener('click', () => label.remove());
-
+    span.style.paddingLeft = '8px';
     label.appendChild(checkbox);
     label.appendChild(span);
-    label.appendChild(delBtn);
-    return label;
+    container.appendChild(label);
+    datesContainer.appendChild(container);
   }
 
   addDateBtn.addEventListener('click', () => {
     const dateValue = newDateInput.value.trim();
     if (!dateValue) return;
-    datesContainer.appendChild(createDateLabel(dateValue));
+    createDateLabel(dateValue);
     newDateInput.value = '';
   });
 
@@ -124,43 +127,42 @@
     e.preventDefault();
     const name = document.getElementById('name').value.trim();
     const selectedDates = Array.from(document.querySelectorAll('input[name="dates"]:checked')).map(el => el.value);
-    if (selectedDates.length === 0) { alert('Bitte wähle mindestens einen Termin aus.'); return; }
+    if(selectedDates.length === 0){ alert('Bitte wähle mindestens einen Termin aus.'); return; }
 
     const votesRef = collection(db, 'votes');
     const snapshot = await getDocs(votesRef);
     let existingDoc = null;
 
     snapshot.forEach(docSnap => {
-      if (docSnap.data().name.toLowerCase() === name.toLowerCase()) {
+      if(docSnap.data().name.toLowerCase() === name.toLowerCase()){
         existingDoc = docSnap;
       }
     });
 
-    if (existingDoc) {
+    if(existingDoc){
       const currentDates = existingDoc.data().dates || [];
-      const newDates = Array.from(new Set([...currentDates, ...selectedDates]));
-      await updateDoc(doc(db, 'votes', existingDoc.id), { dates: newDates });
+      const newDates = Array.from(new Set([...currentDates,...selectedDates]));
+      await updateDoc(doc(db,'votes',existingDoc.id),{dates:newDates});
     } else {
-      await addDoc(votesRef, { name, dates: selectedDates, created: serverTimestamp() });
+      await addDoc(votesRef,{name,dates:selectedDates,created:serverTimestamp()});
     }
 
     form.reset();
   });
 
-  const q = query(collection(db, 'votes'), orderBy('created'));
-  onSnapshot(q, (snapshot) => {
-    votesList.innerHTML = '';
-    snapshot.forEach(docSnap => {
+  const q = query(collection(db,'votes'),orderBy('created'));
+  onSnapshot(q,(snapshot)=>{
+    votesList.innerHTML='';
+    snapshot.forEach(docSnap=>{
       const data = docSnap.data();
-      const datesArray = Array.isArray(data.dates) ? data.dates : [];
+      const datesArray = Array.isArray(data.dates)?data.dates:[];
       const li = document.createElement('li');
       li.textContent = data.name + ' → ' + datesArray.join(', ');
 
       const delBtn = document.createElement('button');
       delBtn.textContent = '✖';
-      delBtn.style.marginLeft = '8px';
-      delBtn.addEventListener('click', async () => {
-        await deleteDoc(doc(db, 'votes', docSnap.id));
+      delBtn.addEventListener('click', async ()=>{
+        await deleteDoc(doc(db,'votes',docSnap.id));
       });
 
       li.appendChild(delBtn);
