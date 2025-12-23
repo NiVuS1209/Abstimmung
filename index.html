@@ -17,7 +17,7 @@
       z-index: -1;
     }
 
-    /* Overlay damit Texte lesbar bleiben */
+    /* Overlay für bessere Lesbarkeit */
     body::before {
       content: '';
       position: fixed;
@@ -39,11 +39,21 @@
     button:hover { background: #17a64a; }
     #clearVotes { background: #c0392b; }
     footer { text-align: center; padding: 20px; opacity: 0.9; font-size: 0.9rem; position: relative; z-index: 1; }
+
+    /* Mobile Layout */
+    @media screen and (max-width: 600px) {
+      header h1 { font-size: 1.8rem; }
+      header p { font-size: 1rem; }
+      .container { margin: 20px auto; padding: 0 10px; }
+      .card { padding: 16px; }
+      button { width: 100%; padding: 12px; font-size: 1rem; }
+      input[type="text"] { width: 100%; font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
 
-<video id="bgVideo" autoplay muted playsinline></video>
+<video id="bgVideo" autoplay muted playsinline loop></video>
 
 <header>
   <h1>🎄 Topgolf Familien-Weihnachtsgeschenk 🎄</h1>
@@ -123,26 +133,11 @@
     snapshot.forEach(async (docSnap) => { await deleteDoc(doc(db, 'votes', docSnap.id)); });
   });
 
-  // Hintergrundvideo Ping-Pong stabil
+  // Hintergrundvideo setzen
   const video = document.getElementById('bgVideo');
   video.src = 'Topgolf.mp4'; // Hier dein Video einfügen
   video.muted = true;
   video.play();
-
-  let forward = true;
-  video.addEventListener('loadedmetadata', () => {
-    function pingPong() {
-      if (forward) {
-        video.currentTime += 0.03;
-        if (video.currentTime >= video.duration) forward = false;
-      } else {
-        video.currentTime -= 0.03;
-        if (video.currentTime <= 0) forward = true;
-      }
-      requestAnimationFrame(pingPong);
-    }
-    requestAnimationFrame(pingPong);
-  });
 </script>
 
 </body>
