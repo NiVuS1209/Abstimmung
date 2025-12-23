@@ -154,6 +154,15 @@
       const datesArray = Array.isArray(data.dates) ? data.dates : [];
       const li = document.createElement('li');
       li.textContent = data.name + ' → ' + datesArray.join(', ');
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✖';
+      delBtn.style.marginLeft = '8px';
+      delBtn.addEventListener('click', async () => {
+        await deleteDoc(doc(db, 'votes', docSnap.id));
+      });
+
+      li.appendChild(delBtn);
       votesList.appendChild(li);
     });
   });
