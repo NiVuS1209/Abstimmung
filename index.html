@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Topgolf Abstimmung ⛳</title>
+  <title>Topgolf Familien-Event 🎄</title>
   <style>
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: white; overflow-y: auto; }
 
@@ -27,20 +27,20 @@
       z-index: 0;
     }
 
-    /* Header schwarz und durchsichtig */
+    /* Header schwarz und leicht durchsichtig */
     header { background: rgba(0,0,0,0.3); padding: 40px 20px; text-align: center; position: relative; z-index: 1; }
     header h1 { margin: 0; font-size: 2.5rem; }
     header p { margin-top: 10px; font-size: 1.2rem; }
 
-    /* Karten dunkel und leicht durchsichtig */
+    /* Karten dunkel und fast undurchsichtig */
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
-    .card { background: rgba(0,0,0,0.9); border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-    .card h2 { margin-top: 0; color: #4166cb; }
+    .card { background: rgba(0,0,0,0.95); border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .card h2 { margin-top: 0; color: #1db954; }
     .dates label { display: block; margin-bottom: 10px; cursor: pointer; }
-    button { background: #4166cb; border: none; padding: 14px 24px; border-radius: 999px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
-    button:hover { background: #4166cb; }
+    button { background: #1db954; border: none; padding: 14px 24px; border-radius: 999px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
+    button:hover { background: #17a64a; }
     #clearVotes { background: #c0392b; }
-    footer { text-align: center; padding: 20px; opacity: 0.9; font-size: 0.9rem; position: relative; z-index: 1; background: rgba(0,0,0,0.9); border-radius: 16px; }
+    footer { text-align: center; padding: 20px; opacity: 0.9; font-size: 0.9rem; position: relative; z-index: 1; background: rgba(0,0,0,0.95); border-radius: 16px; }
 
     /* Mobile Layout */
     @media screen and (max-width: 600px) {
@@ -58,14 +58,14 @@
 <video id="bgVideo" autoplay muted playsinline loop></video>
 
 <header>
-  <h1>🎄 Topgolf Weihnachtsgeschenk 🎄</h1>
+  <h1>🎄 Topgolf Familien-Weihnachtsgeschenk 🎄</h1>
   <p>Wählt alle Termine aus, die euch passen!</p>
 </header>
 
 <div class="container">
   <div class="card">
     <h2>🎁 Das Geschenk</h2>
-    <p>Zu Weihnachten laden wir euch zu einem gemeinsamen <strong>Topgolf-Erlebnis</strong> ein! Spaß, Essen und eine gute Zeit zusammen 🎯⛳</p>
+    <p>Zu Weihnachten lade ich euch zu einem gemeinsamen <strong>Topgolf-Erlebnis</strong> ein! Spaß, Essen und eine gute Zeit zusammen 🎯⛳</p>
   </div>
 
   <div class="card">
@@ -73,14 +73,10 @@
     <p>Wählt die Termine aus, die euch passen (mehrere möglich):</p>
     <form>
       <label>Dein Name:<br><input type="text" id="name" required style="padding:8px;border-radius:8px;border:none;margin:10px 0;width:100%;max-width:300px;"></label>
-      <div class="dates">
-        <label><input type="checkbox" name="dates" value="10. Januar"> 1. Januar</label>
-        <label><input type="checkbox" name="dates" value="17. Januar"> 1. Januar</label>
-        <label><input type="checkbox" name="dates" value="24. Januar"> 2. Januar</label>
-        <label><input type="checkbox" name="dates" value="10. Januar"> 1. Januar</label>
-        <label><input type="checkbox" name="dates" value="10. Januar"> 1. Januar</label>
-        <label><input type="checkbox" name="dates" value="10. Januar"> 1. Januar</label>
-        <label><input type="checkbox" name="dates" value="10. Januar"> 1. Januar</label>
+      <label>Neuen Termin hinzufügen:<br><input type="text" id="newDate" placeholder="z.B. 31. Januar"></label>
+      <button type="button" id="addDate">Hinzufügen</button>
+      <div class="dates" id="datesContainer">
+        
       </div>
       <button type="submit">Abstimmen</button>
     </form>
@@ -90,7 +86,7 @@
   </div>
 </div>
 
-<footer>❤️ Gemacht als Weihnachtsüberraschung für euch</footer>
+<footer>❤️ Gemacht als Weihnachtsüberraschung für die Familie</footer>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -110,7 +106,28 @@
 
   const form = document.querySelector('form');
   const votesList = document.getElementById('votes');
+  const addDateBtn = document.getElementById('addDate');
+  const newDateInput = document.getElementById('newDate');
+  const datesContainer = document.getElementById('datesContainer');
 
+  // Eigene Termine hinzufügen
+  addDateBtn.addEventListener('click', () => {
+    const dateValue = newDateInput.value.trim();
+    if (!dateValue) return;
+
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'dates';
+    checkbox.value = dateValue;
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + dateValue));
+
+    datesContainer.appendChild(label);
+    newDateInput.value = '';
+  });
+
+  // Abstimmung speichern
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('name').value;
@@ -121,6 +138,7 @@
     form.reset();
   });
 
+  // Stimmen live anzeigen
   const q = query(collection(db, 'votes'), orderBy('created'));
   onSnapshot(q, (snapshot) => {
     votesList.innerHTML = '';
@@ -133,6 +151,7 @@
     });
   });
 
+  // Alle Stimmen löschen
   document.getElementById('clearVotes').addEventListener('click', async () => {
     if (!confirm('Willst du wirklich ALLE Abstimmungen löschen?')) return;
     const snapshot = await getDocs(collection(db, 'votes'));
@@ -141,7 +160,7 @@
 
   // Hintergrundvideo setzen
   const video = document.getElementById('bgVideo');
-  video.src = 'Topgolf.mp4'; // Hier dein Video einfügen
+  video.src = 'deinvideo.mp4'; // Hier dein Video einfügen
   video.muted = true;
   video.play();
 </script>
