@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Topgolf Familien-Event 🎄</title>
   <style>
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: white; overflow: hidden; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: white; overflow-y: auto; }
 
     /* Hintergrundvideo */
     #bgVideo {
@@ -27,12 +27,12 @@
       z-index: 0;
     }
 
-    header { background: rgba(0,0,0,0.3); padding: 40px 20px; text-align: center; position: relative; z-index: 1; }
+    header { background: rgba(0,0,139,1); padding: 40px 20px; text-align: center; position: relative; z-index: 1; }
     header h1 { margin: 0; font-size: 2.5rem; }
     header p { margin-top: 10px; font-size: 1.2rem; }
 
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
-    .card { background: rgba(20,61,43,0.8); border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .card { background: rgb(0,0,139); border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     .card h2 { margin-top: 0; color: #1db954; }
     .dates label { display: block; margin-bottom: 10px; cursor: pointer; }
     button { background: #1db954; border: none; padding: 14px 24px; border-radius: 999px; font-size: 1rem; cursor: pointer; margin-top: 20px; }
@@ -135,7 +135,7 @@
 
   // Hintergrundvideo setzen
   const video = document.getElementById('bgVideo');
-  video.src = 'deinvideo.mp4'; // Hier dein Video einfügen
+  video.src = 'Topgolf.mp4'; // Hier dein Video einfügen
   video.muted = true;
   video.play();
 </script>
